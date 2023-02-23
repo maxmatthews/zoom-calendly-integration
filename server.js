@@ -18,9 +18,7 @@ server.post("/zoomWebhook", async (req, res) => {
 	} else {
 		if (zoomWebhookValidation(req)) {
 			console.log("auth failure");
-			return res
-				.status(401)
-				.send({ success: false, message: "auth failure" });
+			return res.status(401).send({ success: false, message: "auth failure" });
 		}
 
 		const calendlyEvents = await getScheduledEventsFromCalendly(req);
@@ -59,9 +57,9 @@ const zoomURLValidation = (req, res) => {
 
 //used to verify webhook calls are actually coming from zoom
 const zoomWebhookValidation = (req) => {
-	const message = `v0:${
-		req.headers["x-zm-request-timestamp"]
-	}:${JSON.stringify(req.body)}`;
+	const message = `v0:${req.headers["x-zm-request-timestamp"]}:${JSON.stringify(
+		req.body
+	)}`;
 
 	//crypto scares me, but the Zoom example code is very helpful
 	const hashForVerify = crypto
@@ -155,4 +153,6 @@ server.get("/", (req, res) => {
 	res.send({ server: "running" });
 });
 
-server.listen(3000);
+server.listen(3000, "0.0.0.0", () => {
+	console.log("Server running");
+});
