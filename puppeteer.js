@@ -117,6 +117,7 @@ const uploadFileToYouTube = async (filePath) => {
 	await wait(1500);
 	await page.waitForSelector(`#done-button`);
 	await page.click("#done-button");
+	await wait(1500);
 
 	await browser.close();
 };
