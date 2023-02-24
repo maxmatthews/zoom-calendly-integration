@@ -24,12 +24,14 @@ const uploadFileToYouTube = async (filePath) => {
 
 	const navigationPromise = page.waitForNavigation();
 	await page.goto("https://youtube.com/");
+
 	await navigationPromise;
 	await page.waitForSelector('a[aria-label="Sign in"]');
 	await page.click('a[aria-label="Sign in"]');
 	await page.type('input[type="email"]', secrets.gmailEmail);
 	await page.waitForSelector("#identifierNext");
 	await page.click("#identifierNext");
+
 	await wait(10000);
 	await page.waitForSelector('input[type="password"]');
 	// await page.click('input[type="email"]');
@@ -37,6 +39,7 @@ const uploadFileToYouTube = async (filePath) => {
 	await page.type('input[type="password"]', secrets.gmailPassword);
 	await page.waitForSelector("#passwordNext");
 	await page.click("#passwordNext");
+
 	await wait(5000);
 	const tryAnotherWayBypass = await page.$('div[data-challengetype="6"]');
 	if (!tryAnotherWayBypass) {

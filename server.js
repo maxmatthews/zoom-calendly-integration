@@ -26,12 +26,12 @@ server.post("/zoomWebhookHU", async (req, res) => {
 		res.send({ webhook: true });
 
 		if (
-			req.body.payload.object.topic === "CiC C4 Classroom"
-			// && req.body.payload.object.duration > 91
+			req.body.payload.object.topic === "CiC C4 Classroom" &&
+			req.body.payload.object.duration > 91
 		) {
 			try {
 				const filePath = await downloadFile(req.body);
-				// await uploadFileToYouTube(filePath);
+				await uploadFileToYouTube(filePath);
 				deleteFile(filePath);
 			} catch (error) {
 				console.error(error);
@@ -48,6 +48,10 @@ server.post("/zoomWebhook", async (req, res) => {
 		if (zoomWebhookValidation(req, secrets.zoomSecret)) {
 			console.log("auth failure");
 			return res.status(401).send({ success: false, message: "auth failure" });
+		}
+
+		if (req.body.payload.object.duration < 8) {
+			return res.send("recording is too short, thanks though!");
 		}
 
 		const calendlyEvents = await getScheduledEventsFromCalendly(req);
