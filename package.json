@@ -3,9 +3,11 @@
 	"version": "1.0.0",
 	"type": "module",
 	"description": "",
-	"main": "index.js",
+	"main": "server.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "npx nodemon server.js",
+		"deploy": "rsync --delete --delete-after --exclude=.git --exclude=node_modules -avzhe ssh /Users/maxmatthews/Desktop/projects/zoom-calendly-integration/ odroid@192.168.1.104:/home/odroid/zoom-calendly-integration/ && ssh odroid@192.168.1.104 'cd zoom-calendly-integration && npm i && /home/odroid/.nvm/versions/node/v18.14.2/bin/pm2 restart pm2ecosystem.config.cjs'"
 	},
 	"author": "",
 	"license": "ISC",
@@ -16,10 +18,10 @@
 		"cors": "^2.8.5",
 		"date-fns": "^2.29.3",
 		"express": "^4.18.2",
-		"node-fetch": "^3.3.0",
 		"otpauth": "^9.0.2",
 		"puppeteer": "^19.7.2",
 		"puppeteer-extra": "^3.3.4",
-		"puppeteer-extra-plugin-stealth": "^2.11.1"
+		"puppeteer-extra-plugin-stealth": "^2.11.1",
+		"tempy": "^3.0.0"
 	}
 }

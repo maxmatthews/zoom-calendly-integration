@@ -2,21 +2,50 @@ import express from "express";
 import bodyParser from "body-parser";
 import * as crypto from "crypto";
 import secrets from "./secrets.js";
-import fetch from "node-fetch";
 import { subMinutes, addMinutes } from "date-fns";
 import sgMail from "@sendgrid/mail";
 import { generateHTML } from "./emailContent.js";
+import { downloadFile, deleteFile } from "./download.js";
+import uploadFileToYouTube from "./puppeteer.js";
 
 //express server and sendgrid API setup
 export const server = express();
 server.use(bodyParser.json());
 sgMail.setApiKey(secrets.sendgridAPIKey);
 
+server.post("/zoomWebhookHU", async (req, res) => {
+	if (req.body.event === "endpoint.url_validation") {
+		zoomURLValidation(req, res, secrets.zoomSecret2);
+	} else {
+		if (zoomWebhookValidation(req, secrets.zoomSecret2)) {
+			console.log("auth failure");
+			return res.status(401).send({ success: false, message: "auth failure" });
+		}
+
+		//send something back to Zoom while we download the file so it isn't marked as a failure
+		res.send({ webhook: true });
+
+		if (
+			req.body.payload.object.topic === "CiC C4 Classroom" &&
+			req.body.payload.object.duration > 91
+		) {
+			try {
+				const filePath = await downloadFile(req.body);
+				await uploadFileToYouTube(filePath);
+				deleteFile(filePath);
+			} catch (error) {
+				console.error(error);
+				sendFailureMessage(req);
+			}
+		}
+	}
+});
+
 server.post("/zoomWebhook", async (req, res) => {
 	if (req.body.event === "endpoint.url_validation") {
-		zoomURLValidation(req, res);
+		zoomURLValidation(req, res, secrets.zoomSecret);
 	} else {
-		if (zoomWebhookValidation(req)) {
+		if (zoomWebhookValidation(req, secrets.zoomSecret)) {
 			console.log("auth failure");
 			return res.status(401).send({ success: false, message: "auth failure" });
 		}
@@ -32,19 +61,20 @@ server.post("/zoomWebhook", async (req, res) => {
 		if (!matchingEvent) {
 			return await sendFailureMessage(req);
 		} else {
+			res.send({ success: true });
 			const inviteeEmails = await getInvitees(matchingEvent);
 
-			return await sendEmails(inviteeEmails, res);
+			return await sendEmails(inviteeEmails);
 		}
 	}
 });
 
 //Zoom initiated request to this endpoint to validate our server has the correct secret
-const zoomURLValidation = (req, res) => {
+const zoomURLValidation = (req, res, zoomSecret) => {
 	//this code is taken right from an example in the Zoom documentation to hash
 	//together our secret with the token in the body
 	const hashForValidate = crypto
-		.createHmac("sha256", secrets.zoomSecret)
+		.createHmac("sha256", zoomSecret)
 		.update(req.body.payload.plainToken)
 		.digest("hex");
 
@@ -56,14 +86,14 @@ const zoomURLValidation = (req, res) => {
 };
 
 //used to verify webhook calls are actually coming from zoom
-const zoomWebhookValidation = (req) => {
+const zoomWebhookValidation = (req, zoomSecret) => {
 	const message = `v0:${req.headers["x-zm-request-timestamp"]}:${JSON.stringify(
 		req.body
 	)}`;
 
 	//crypto scares me, but the Zoom example code is very helpful
 	const hashForVerify = crypto
-		.createHmac("sha256", secrets.zoomSecret)
+		.createHmac("sha256", zoomSecret)
 		.update(message)
 		.digest("hex");
 
@@ -124,7 +154,7 @@ const getInvitees = async (matchingEvent) => {
 		.map((invitee) => invitee.email);
 };
 
-const sendEmails = async (inviteeEmails, res) => {
+const sendEmails = async (inviteeEmails) => {
 	for (const email of inviteeEmails) {
 		const msg = {
 			to: email,
@@ -142,11 +172,9 @@ const sendEmails = async (inviteeEmails, res) => {
 			if (error.response) {
 				console.error(error.response.body);
 			}
-			res.send({ success: false });
 			return;
 		}
 	}
-	res.send({ success: true });
 };
 
 server.get("/", (req, res) => {
