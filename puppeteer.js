@@ -9,15 +9,19 @@ const wait = async (time) => {
 		setTimeout(resolve, time);
 	});
 };
-
 const uploadFileToYouTube = async (filePath) => {
 	puppeteer.use(StealthPlugin());
 
 	const browser = await puppeteer.launch({
-		headless: false,
-		executablePath: executablePath(),
+		args: ["--windowsize=1920,1080", "--no-sandbox"],
+		headless: false, //google auth doesn't work if headless is set to true, it fails on the password reset
+		executablePath:
+			process.platform === "darwin"
+				? executablePath()
+				: "/usr/bin/chromium-browser",
 	});
 	const page = await browser.newPage();
+
 	const navigationPromise = page.waitForNavigation();
 	await page.goto("https://youtube.com/");
 	await navigationPromise;
@@ -26,20 +30,14 @@ const uploadFileToYouTube = async (filePath) => {
 	await page.type('input[type="email"]', secrets.gmailEmail);
 	await page.waitForSelector("#identifierNext");
 	await page.click("#identifierNext");
-
-	await wait(5000);
-
+	await wait(10000);
 	await page.waitForSelector('input[type="password"]');
-	await page.click('input[type="email"]');
-	await wait(5000);
+	// await page.click('input[type="email"]');
+	// await wait(5000);
 	await page.type('input[type="password"]', secrets.gmailPassword);
-
 	await page.waitForSelector("#passwordNext");
 	await page.click("#passwordNext");
-	await navigationPromise;
-
 	await wait(5000);
-
 	const tryAnotherWayBypass = await page.$('div[data-challengetype="6"]');
 	if (!tryAnotherWayBypass) {
 		await page.waitForXPath(`//span[contains(text(), 'Try another way')]`);
@@ -48,7 +46,7 @@ const uploadFileToYouTube = async (filePath) => {
 		);
 		await tryAnotherWay[0].click();
 
-		await wait(1000);
+		await wait(5000);
 	}
 
 	await page.waitForSelector('div[data-challengetype="6"]');
@@ -117,7 +115,7 @@ const uploadFileToYouTube = async (filePath) => {
 	await wait(1500);
 	await page.waitForSelector(`#done-button`);
 	await page.click("#done-button");
-	await wait(1500);
+	await wait(5000);
 
 	await browser.close();
 };

@@ -4,7 +4,7 @@ import * as crypto from "crypto";
 import secrets from "./secrets.js";
 import { subMinutes, addMinutes } from "date-fns";
 import sgMail from "@sendgrid/mail";
-import { generateHTML } from "./emailContent.js";
+import { generateHTML, generatePlainText } from "./emailContent.js";
 import { downloadFile, deleteFile } from "./download.js";
 import uploadFileToYouTube from "./puppeteer.js";
 
@@ -26,12 +26,12 @@ server.post("/zoomWebhookHU", async (req, res) => {
 		res.send({ webhook: true });
 
 		if (
-			req.body.payload.object.topic === "CiC C4 Classroom" &&
-			req.body.payload.object.duration > 91
+			req.body.payload.object.topic === "CiC C4 Classroom"
+			// && req.body.payload.object.duration > 91
 		) {
 			try {
 				const filePath = await downloadFile(req.body);
-				await uploadFileToYouTube(filePath);
+				// await uploadFileToYouTube(filePath);
 				deleteFile(filePath);
 			} catch (error) {
 				console.error(error);
@@ -137,7 +137,6 @@ const sendFailureMessage = async (req) => {
 	};
 
 	await sgMail.send(msg);
-	res.send({ success: false });
 };
 
 const getInvitees = async (matchingEvent) => {
@@ -160,7 +159,7 @@ const sendEmails = async (inviteeEmails) => {
 			to: email,
 			from: "max@zane.tech",
 			subject: `Recording From Our Meeting ${new Date().toLocaleDateString()}`,
-			text: getPlainContent(req),
+			text: generatePlainText(req),
 			html: generateHTML(req),
 		};
 
