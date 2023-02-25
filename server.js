@@ -68,7 +68,7 @@ server.post("/zoomWebhook", async (req, res) => {
 			res.send({ success: true });
 			const inviteeEmails = await getInvitees(matchingEvent);
 
-			return await sendEmails(inviteeEmails);
+			return await sendEmails(inviteeEmails, req);
 		}
 	}
 });
@@ -157,7 +157,7 @@ const getInvitees = async (matchingEvent) => {
 		.map((invitee) => invitee.email);
 };
 
-const sendEmails = async (inviteeEmails) => {
+const sendEmails = async (inviteeEmails, req) => {
 	for (const email of inviteeEmails) {
 		const msg = {
 			to: email,
