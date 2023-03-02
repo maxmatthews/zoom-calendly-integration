@@ -86,7 +86,11 @@ const uploadFileToYouTube = async (filePath) => {
 	]);
 	await fileChooser.accept([filePath]);
 
-	await wait(10000);
+	await page.waitForXPath(
+		'//tp-yt-paper-progress[contains(@class,"ytcp-video-upload-progress-hover") and @value="100"]',
+		{ timeout: 0 }
+	);
+	await wait(5000);
 
 	await page.waitForSelector(
 		`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`
