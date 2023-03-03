@@ -6,13 +6,20 @@ import { temporaryFile } from "tempy";
 
 const downloadFile = async (zoomBody) => {
 	const tempFilePath = temporaryFile({ extension: "mp4" });
-	const matchingFile = zoomBody.payload.object.recording_files.find(
-		(file) => file.file_extension === "MP4"
-	);
+
+	let largestFileSize = 0;
+	let largestFile;
+
+	for (const file of zoomBody.payload.object.recording_files) {
+		if (file.file_size > largestFileSize) {
+			largestFile = file;
+			largestFileSize = file.file_size;
+		}
+	}
 
 	const stream = fs.createWriteStream(tempFilePath);
 	const { body } = await fetch(
-		`${matchingFile.download_url}?access_token=${zoomBody.download_token}`
+		`${largestFile.download_url}?access_token=${largestFile.download_token}`
 	);
 	await finished(Readable.fromWeb(body).pipe(stream));
 
