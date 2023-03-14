@@ -19,7 +19,7 @@ const downloadFile = async (zoomBody) => {
 
 	const stream = fs.createWriteStream(tempFilePath);
 	const { body } = await fetch(
-		`${largestFile.download_url}?access_token=${largestFile.download_token}`
+		`${largestFile.download_url}?access_token=${zoomBody.download_token}`
 	);
 	await finished(Readable.fromWeb(body).pipe(stream));
 
