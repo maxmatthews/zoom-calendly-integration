@@ -27,7 +27,7 @@ server.post("/zoomWebhookHU", async (req, res) => {
 		res.send({ webhook: true });
 
 		if (
-			req.body.payload.object.topic === "CiC C4 Classroom" &&
+			req.body.payload.object.topic === "CiC C5 Classroom" &&
 			req.body.payload.object.duration > 91
 		) {
 			try {
