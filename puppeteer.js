@@ -3,6 +3,7 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { executablePath } from "puppeteer";
 import * as OTPAuth from "otpauth";
 import secrets from "./secrets.js";
+import updateSpreadsheet from "./sheets.js";
 
 const wait = async (time) => {
 	return new Promise(function (resolve) {
@@ -60,7 +61,7 @@ const uploadFileToYouTube = async (filePath) => {
 	await page.type(`#totpPin`, generateOTP());
 	await page.click("#totpNext");
 
-	await wait(1000);
+	await wait(2000);
 	await page.waitForXPath(
 		`//yt-formatted-string[contains(text(), 'Hack Upstate')]`
 	);
@@ -98,10 +99,23 @@ const uploadFileToYouTube = async (filePath) => {
 	const titleInput = await page.$(
 		`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`
 	);
+
+	await wait(20000);
+	//this doesn't work, should probably wait untilt the link is generated instead of just waiting an arbitrary time
+	// await page.waitForXPath(
+	// 	`a[contains(text(), "https://")]`,
+	// 	// '//tp-yt-paper-progress[contains(@class,"ytcp-video-upload-progress-hover") and @value="100"]',
+	// 	{ timeout: 0 }
+	// );
+	await page.waitForSelector(`a[class="style-scope ytcp-video-info"]`);
+	const urlElement = await page.$(`a[class="style-scope ytcp-video-info"]`);
+	const videoURL = await (await urlElement.getProperty("href")).jsonValue();
+	const dayCode = await updateSpreadsheet(videoURL);
+
 	await titleInput.click({ clickCount: 3 });
 	await page.type(
 		`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`,
-		new Date().toLocaleDateString()
+		dayCode ? `C5 ${dayCode}` : new Date().toLocaleDateString()
 	);
 
 	await page.click(".ytcp-video-metadata-playlists");
