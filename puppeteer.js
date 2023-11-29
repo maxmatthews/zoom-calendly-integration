@@ -46,7 +46,7 @@ const uploadFileToYouTube = async (filePath) => {
 	if (!tryAnotherWayBypass) {
 		await page.waitForXPath(`//span[contains(text(), 'Try another way')]`);
 		const tryAnotherWay = await page.$x(
-			`//span[contains(text(), 'Try another way')]`
+			`//span[contains(text(), 'Try another way')]`,
 		);
 		await tryAnotherWay[0].click();
 
@@ -63,10 +63,10 @@ const uploadFileToYouTube = async (filePath) => {
 
 	await wait(2000);
 	await page.waitForXPath(
-		`//yt-formatted-string[contains(text(), 'Hack Upstate')]`
+		`//yt-formatted-string[contains(text(), 'Hack Upstate')]`,
 	);
 	const huChannel = await page.$x(
-		`//yt-formatted-string[contains(text(), 'Hack Upstate')]`
+		`//yt-formatted-string[contains(text(), 'Hack Upstate')]`,
 	);
 	await huChannel[0].click();
 	await wait(1000);
@@ -89,15 +89,15 @@ const uploadFileToYouTube = async (filePath) => {
 
 	await page.waitForXPath(
 		'//tp-yt-paper-progress[contains(@class,"ytcp-video-upload-progress-hover") and @value="100"]',
-		{ timeout: 0 }
+		{ timeout: 0 },
 	);
 	await wait(5000);
 
 	await page.waitForSelector(
-		`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`
+		`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`,
 	);
 	const titleInput = await page.$(
-		`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`
+		`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`,
 	);
 
 	await wait(20000);
@@ -109,18 +109,30 @@ const uploadFileToYouTube = async (filePath) => {
 	// );
 	await page.waitForSelector(`a[class="style-scope ytcp-video-info"]`);
 	const urlElement = await page.$(`a[class="style-scope ytcp-video-info"]`);
-	const videoURL = await (await urlElement.getProperty("href")).jsonValue();
-	const dayCode = await updateSpreadsheet(videoURL);
+
+	//disabled for advent of code
+	// const videoURL = await (await urlElement.getProperty("href")).jsonValue();
+	// const dayCode = await updateSpreadsheet(videoURL);
 
 	await titleInput.click({ clickCount: 3 });
+
+	//disabled for advent of code
+	// await page.type(
+	// 	`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`,
+	// 	dayCode ? `C5 ${dayCode}` : new Date().toLocaleDateString()
+	// );
+
+	//enabled for advent of code
 	await page.type(
 		`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`,
-		dayCode ? `C5 ${dayCode}` : new Date().toLocaleDateString()
+		`Advent of Code 2023 #${new Date().getDate()}`,
 	);
 
 	await page.click(".ytcp-video-metadata-playlists");
 	await wait(5000);
-	const playlist = await page.$x(`//span[contains(text(), 'CiC C5')]`);
+	const playlist = await page.$x(
+		`//span[contains(text(), 'Advent of Code 2023')]`,
+	); //CiC C5
 	await playlist[0].click();
 	await page.click("#next-button");
 

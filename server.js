@@ -27,8 +27,10 @@ server.post("/zoomWebhookHU", async (req, res) => {
 		res.send({ webhook: true });
 
 		if (
-			req.body.payload.object.topic === "CiC C5 Classroom" &&
-			req.body.payload.object.duration > 91
+			(req.body.payload.object.topic === "CiC C5 Classroom" &&
+				req.body.payload.object.duration > 91) ||
+			(req.body.payload.object.topic === "Advent of Code 2023" &&
+				req.body.payload.object.duration > 5)
 		) {
 			try {
 				const filePath = await downloadFile(req.body);
@@ -66,7 +68,7 @@ server.post("/zoomWebhook", async (req, res) => {
 		//match the zoom webhook data with the calendly events by using the zoom
 		//meeting ID which Calendly also stores
 		const matchingEvent = calendlyEvents.collection.find(
-			(event) => event.location.data.id === req.body.payload.object.id
+			(event) => event.location.data.id === req.body.payload.object.id,
 		);
 
 		if (!matchingEvent) {
@@ -99,7 +101,7 @@ const zoomURLValidation = (req, res, zoomSecret) => {
 //used to verify webhook calls are actually coming from zoom
 const zoomWebhookValidation = (req, zoomSecret) => {
 	const message = `v0:${req.headers["x-zm-request-timestamp"]}:${JSON.stringify(
-		req.body
+		req.body,
 	)}`;
 
 	//crypto scares me, but the Zoom example code is very helpful
@@ -117,7 +119,7 @@ const zoomWebhookValidation = (req, zoomSecret) => {
 const getScheduledEventsFromCalendly = async (req) => {
 	const minFromStart = subMinutes(
 		new Date(req.body.payload.object.start_time),
-		90
+		90,
 	).toISOString();
 	const maxFromNow = addMinutes(new Date(), 90).toISOString();
 
@@ -129,7 +131,7 @@ const getScheduledEventsFromCalendly = async (req) => {
 			headers: {
 				Authorization: `Bearer ${secrets.calendlyPAT}`,
 			},
-		}
+		},
 	);
 
 	return await calendlyResponse.json();
@@ -143,7 +145,7 @@ const sendFailureMessage = async (req) => {
 		html: `Recording not sent for ${req.body.payload.object?.topic} (${
 			req.body.payload.object?.id
 		})<br/>Started: ${new Date(
-			req.body.payload.object?.start_time
+			req.body.payload.object?.start_time,
 		).toLocaleString()}`.replaceAll(/\\n/g, "<br/>"),
 	};
 
