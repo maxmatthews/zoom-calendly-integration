@@ -65,6 +65,7 @@ const uploadFileToYouTube = async (filePath) => {
 	await page.waitForXPath(
 		`//yt-formatted-string[contains(text(), 'Hack Upstate')]`,
 	);
+	await wait(1000);
 	const huChannel = await page.$x(
 		`//yt-formatted-string[contains(text(), 'Hack Upstate')]`,
 	);
@@ -101,7 +102,7 @@ const uploadFileToYouTube = async (filePath) => {
 	);
 
 	await wait(20000);
-	//this doesn't work, should probably wait untilt the link is generated instead of just waiting an arbitrary time
+	//this doesn't work, should probably wait until the link is generated instead of just waiting an arbitrary time
 	// await page.waitForXPath(
 	// 	`a[contains(text(), "https://")]`,
 	// 	// '//tp-yt-paper-progress[contains(@class,"ytcp-video-upload-progress-hover") and @value="100"]',
@@ -110,28 +111,28 @@ const uploadFileToYouTube = async (filePath) => {
 	await page.waitForSelector(`a[class="style-scope ytcp-video-info"]`);
 	const urlElement = await page.$(`a[class="style-scope ytcp-video-info"]`);
 
-	//disabled for advent of code
-	// const videoURL = await (await urlElement.getProperty("href")).jsonValue();
-	// const dayCode = await updateSpreadsheet(videoURL);
+	//not required for advent of code
+	const videoURL = await (await urlElement.getProperty("href")).jsonValue();
+	const dayCode = await updateSpreadsheet(videoURL);
 
 	await titleInput.click({ clickCount: 3 });
 
 	//disabled for advent of code
-	// await page.type(
-	// 	`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`,
-	// 	dayCode ? `C5 ${dayCode}` : new Date().toLocaleDateString()
-	// );
-
-	//enabled for advent of code
 	await page.type(
 		`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`,
-		`Advent of Code 2023 #${new Date().getDate()}`,
+		dayCode ? `C6 ${dayCode}` : new Date().toLocaleDateString(),
 	);
+
+	//enable this for advent of code
+	// await page.type(
+	// 	`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`,
+	// 	`Advent of Code 2023 #${new Date().getDate()}`,
+	// );
 
 	await page.click(".ytcp-video-metadata-playlists");
 	await wait(5000);
 	const playlist = await page.$x(
-		`//span[contains(text(), 'Advent of Code 2023')]`,
+		`//span[contains(text(), 'Careers in Code C6')]`,
 	); //CiC C5
 	await playlist[0].click();
 	await page.click("#next-button");

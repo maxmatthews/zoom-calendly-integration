@@ -7,13 +7,13 @@ const updateSpreadsheet = async (youtubeURL) => {
 	const GOOGLE_PRIVATE_KEY = auth.private_key;
 	const GOOGLE_CLIENT_EMAIL = auth.client_email;
 	const GOOGLE_PROJECT_NUMBER = auth.project_id;
-	const spreadsheetId = "1BcwCF0oMbNZ8mxlB9j8E0me8LRn5M0Fi-X-CcxwxksQ";
+	const spreadsheetId = "1OdjzAdxaL1SZEu6wzTMB-X0TykIwwYR48aWx-Iyf1hc";
 
 	const jwtClient = new google.auth.JWT(
 		GOOGLE_CLIENT_EMAIL,
 		null,
 		GOOGLE_PRIVATE_KEY,
-		SCOPES
+		SCOPES,
 	);
 
 	const alphabet = [
@@ -60,13 +60,23 @@ const updateSpreadsheet = async (youtubeURL) => {
 
 	let dayCode;
 
-	for (let rowIndex = 0; rowIndex < values.length; rowIndex++) {
+	for (let rowIndex = 5; rowIndex < values.length; rowIndex++) {
 		for (let colIndex = 0; colIndex < values[rowIndex].length; colIndex++) {
 			const cellValue = values[rowIndex][colIndex];
-			if (cellValue === new Date().toLocaleDateString()) {
-				dayCode = values[rowIndex-1][colIndex];
+
+			if (
+				cellValue ===
+				new Date()
+					.toLocaleDateString()
+					.replace(
+						`${new Date().getFullYear()}`,
+						new Date().getFullYear().toString().substring(2),
+					)
+			) {
+				dayCode = values[rowIndex - 1][colIndex];
+
 				const colLetter = alphabet[colIndex];
-				const videoCellRowNum = rowIndex + 5;
+				const videoCellRowNum = rowIndex + 4;
 				const cellRange = `${colLetter}${videoCellRowNum}`;
 
 				await service.spreadsheets.values.update({
