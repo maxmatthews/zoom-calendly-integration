@@ -58,7 +58,7 @@ const updateSpreadsheet = async (youtubeURL) => {
 
 	const values = res.data.values;
 
-	let dayCode;
+	let dayCode, topic;
 
 	for (let rowIndex = 5; rowIndex < values.length; rowIndex++) {
 		for (let colIndex = 0; colIndex < values[rowIndex].length; colIndex++) {
@@ -74,6 +74,7 @@ const updateSpreadsheet = async (youtubeURL) => {
 					)
 			) {
 				dayCode = values[rowIndex - 1][colIndex];
+				topic = values[rowIndex + 1][colIndex];
 
 				const colLetter = alphabet[colIndex];
 				const videoCellRowNum = rowIndex + 4;
@@ -88,7 +89,7 @@ const updateSpreadsheet = async (youtubeURL) => {
 			}
 		}
 	}
-	return dayCode;
+	return { dayCode, topic };
 };
 
 export default updateSpreadsheet;

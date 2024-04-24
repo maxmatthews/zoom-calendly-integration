@@ -4,6 +4,7 @@ import { executablePath } from "puppeteer";
 import * as OTPAuth from "otpauth";
 import secrets from "./secrets.js";
 import updateSpreadsheet from "./sheets.js";
+import generateThumbnail from "./thumbnail.js";
 
 const wait = async (time) => {
 	return new Promise(function (resolve) {
@@ -42,24 +43,30 @@ const uploadFileToYouTube = async (filePath) => {
 	await page.click("#passwordNext");
 
 	await wait(5000);
-	const tryAnotherWayBypass = await page.$('div[data-challengetype="6"]');
-	if (!tryAnotherWayBypass) {
-		await page.waitForXPath(`//span[contains(text(), 'Try another way')]`);
-		const tryAnotherWay = await page.$x(
-			`//span[contains(text(), 'Try another way')]`,
-		);
-		await tryAnotherWay[0].click();
 
-		await wait(5000);
+	try {
+		const tryAnotherWayBypass = await page.$('div[data-challengetype="6"]');
+		if (!tryAnotherWayBypass) {
+			await page.waitForXPath(`//span[contains(text(), 'Try another way')]`);
+			const tryAnotherWay = await page.$x(
+				`//span[contains(text(), 'Try another way')]`,
+			);
+			await tryAnotherWay[0].click();
+
+			await wait(5000);
+		}
+
+		await page.waitForSelector('div[data-challengetype="6"]');
+		await page.click('div[data-challengetype="6"]');
+
+		await wait(2000);
+		await page.waitForSelector(`#totpPin`);
+		await page.type(`#totpPin`, generateOTP());
+		await page.click("#totpNext");
+	} catch (err) {
+		console.error(err);
+		//might not have to 2FA, so see if we can just ignore the error and keep going
 	}
-
-	await page.waitForSelector('div[data-challengetype="6"]');
-	await page.click('div[data-challengetype="6"]');
-
-	await wait(2000);
-	await page.waitForSelector(`#totpPin`);
-	await page.type(`#totpPin`, generateOTP());
-	await page.click("#totpNext");
 
 	await wait(2000);
 	await page.waitForXPath(
@@ -113,14 +120,30 @@ const uploadFileToYouTube = async (filePath) => {
 
 	//not required for advent of code
 	const videoURL = await (await urlElement.getProperty("href")).jsonValue();
-	const dayCode = await updateSpreadsheet(videoURL);
+	const { dayCode, topic } = await updateSpreadsheet(videoURL);
 
+	//generate thumbnail and upload it to YouTube
+	const thumbnailPath = await generateThumbnail(topic, dayCode);
+	if (thumbnailPath) {
+		await page.waitForXPath(`//span[contains(text(), 'Upload thumbnail')]`);
+		const selectThumbnailFile = await page.$x(
+			`//span[contains(text(), 'Upload thumbnail')]`,
+		);
+		const [fileThumbnailChooser] = await Promise.all([
+			page.waitForFileChooser(),
+			await selectThumbnailFile[0].click(),
+		]);
+		await fileThumbnailChooser.accept([thumbnailPath]);
+	}
+
+	//click on title and input text
 	await titleInput.click({ clickCount: 3 });
-
 	//disabled for advent of code
 	await page.type(
 		`div[aria-label="Add a title that describes your video (type @ to mention a channel)"]`,
-		dayCode ? `C6 ${dayCode}` : new Date().toLocaleDateString(),
+		dayCode
+			? `C6 ${dayCode}${topic ? `: ${topic}` : ""}`
+			: new Date().toLocaleDateString(),
 	);
 
 	//enable this for advent of code

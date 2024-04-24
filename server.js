@@ -44,7 +44,7 @@ server.post("/zoomWebhookHU", async (req, res) => {
 	}
 });
 
-// manually trigger a download on server start for teasting reasons
+// manually trigger a download on server start for testing reasons
 // const filePath = await downloadFile(zoomBody);
 // console.log(filePath);
 // await uploadFileToYouTube(filePath);
