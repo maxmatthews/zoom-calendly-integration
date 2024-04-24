@@ -16,6 +16,9 @@ const generateThumbnail = async (prompt, dayCode) => {
 			dayCode || new Date().toLocaleDateString()
 		}`;
 	}
+
+	prompt = prompt.replace(/P\d/g, "");
+
 	try {
 		const tempFilePath = temporaryFile({ extension: "png" });
 
