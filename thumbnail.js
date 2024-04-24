@@ -1,21 +1,23 @@
 import OpenAI from "openai";
 import secrets from "./secrets.js";
-import {temporaryFile, temporaryDirectory} from "tempy";
+import { temporaryFile, temporaryDirectory } from "tempy";
 import fs from "fs";
-import {finished} from "stream/promises";
-import {Readable} from "stream";
-import {deleteFile} from "./download.js";
-import imagemin from 'imagemin';
-import imageminPngquant from 'imagemin-pngquant';
+import { finished } from "stream/promises";
+import { Readable } from "stream";
+import { deleteFile } from "./download.js";
+import imagemin from "imagemin";
+import imageminPngquant from "imagemin-pngquant";
 
 const openai = new OpenAI({ apiKey: secrets.openAPIKey });
 
-const generateThumbnail = async (prompt, dayCode)=>{
-	if (!prompt){
-		prompt = `Careers in Code bootcamp Date: ${dayCode || new Date().toLocaleDateString()}`
+const generateThumbnail = async (prompt, dayCode) => {
+	if (!prompt) {
+		prompt = `Careers in Code bootcamp Date: ${
+			dayCode || new Date().toLocaleDateString()
+		}`;
 	}
 	try {
-		const tempFilePath = temporaryFile({extension: "png"});
+		const tempFilePath = temporaryFile({ extension: "png" });
 
 		const response = await openai.images.generate({
 			model: "dall-e-3",
@@ -26,9 +28,7 @@ const generateThumbnail = async (prompt, dayCode)=>{
 		const imageURL = response.data[0].url;
 
 		const stream = fs.createWriteStream(tempFilePath);
-		const {body} = await fetch(
-			imageURL
-		);
+		const { body } = await fetch(imageURL);
 		await finished(Readable.fromWeb(body).pipe(stream));
 
 		const compressedDest = temporaryDirectory();
@@ -36,22 +36,19 @@ const generateThumbnail = async (prompt, dayCode)=>{
 			destination: compressedDest,
 			plugins: [
 				imageminPngquant({
-					quality: [0.6, 0.8]
-				})
-			]
+					quality: [0.6, 0.8],
+				}),
+			],
 		});
 		const compressedPath = files[0].destinationPath;
 
-		deleteFile(tempFilePath)
-		deleteFile(compressedPath)
-
-		console.log(tempFilePath, compressedPath)
+		deleteFile(tempFilePath);
+		deleteFile(compressedPath);
 
 		return compressedPath;
-	} catch (e){
+	} catch (e) {
 		console.error(e);
 	}
-}
-
+};
 
 export default generateThumbnail;
