@@ -45,7 +45,7 @@ const generateThumbnail = async (prompt, dayCode) => {
 		//generate the thumbnail, this can take a while
 		const response = await openai.images.generate({
 			model: "dall-e-3",
-			prompt: `${prompt} (coding)`,
+			prompt,
 			n: 1,
 			size: "1792x1024",
 		});
