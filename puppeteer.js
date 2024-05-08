@@ -68,14 +68,10 @@ const uploadFileToYouTube = async (filePath) => {
 		//might not have to 2FA, so see if we can just ignore the error and keep going
 	}
 
-	await wait(2000);
-	await page.waitForXPath(
-		`//yt-formatted-string[contains(text(), 'Hack Upstate')]`,
-	);
+	await wait(10000);
+	await page.waitForXPath(`//span[contains(text(), 'Hack Upstate')]`);
 	await wait(1000);
-	const huChannel = await page.$x(
-		`//yt-formatted-string[contains(text(), 'Hack Upstate')]`,
-	);
+	const huChannel = await page.$x(`//span[contains(text(), 'Hack Upstate')]`);
 	await huChannel[0].click();
 	await wait(1000);
 
