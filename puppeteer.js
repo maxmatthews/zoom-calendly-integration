@@ -22,6 +22,10 @@ const uploadFileToYouTube = async (filePath) => {
 				? executablePath()
 				: "/usr/bin/chromium-browser",
 	});
+
+	const context = browser.defaultBrowserContext();
+	context.overridePermissions("https://www.youtube.com", ["notifications"]);
+
 	const page = await browser.newPage();
 
 	const navigationPromise = page.waitForNavigation();
@@ -69,9 +73,13 @@ const uploadFileToYouTube = async (filePath) => {
 	}
 
 	await wait(10000);
-	await page.waitForXPath(`//span[contains(text(), 'Hack Upstate')]`);
+	await page.waitForXPath(
+		`//yt-formatted-string[contains(text(), 'Hack Upstate')]`,
+	);
 	await wait(1000);
-	const huChannel = await page.$x(`//span[contains(text(), 'Hack Upstate')]`);
+	const huChannel = await page.$x(
+		`//yt-formatted-string[contains(text(), 'Hack Upstate')]`,
+	);
 	await huChannel[0].click();
 	await wait(1000);
 

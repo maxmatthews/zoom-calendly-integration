@@ -30,7 +30,7 @@ const service = google.drive({
 
 const openai = new OpenAI({ apiKey: secrets.openAPIKey });
 
-const generateThumbnail = async (prompt, dayCode) => {
+const generateThumbnail = async (prompt, dayCode, localRun = false) => {
 	if (!prompt) {
 		prompt = `Careers in Code bootcamp Date: ${
 			dayCode || new Date().toLocaleDateString()
@@ -79,7 +79,7 @@ const generateThumbnail = async (prompt, dayCode) => {
 		}
 
 		//compress the image for youtube
-		const compressedDest = temporaryDirectory();
+		const compressedDest = localRun ? "~/Downloads" : temporaryDirectory();
 		const files = await imagemin([tempFilePath], {
 			destination: compressedDest,
 			plugins: [
@@ -99,4 +99,6 @@ const generateThumbnail = async (prompt, dayCode) => {
 	}
 };
 
+// await generateThumbnail("Intro to Javascript", "W5D1", true);
+// process.exit();
 export default generateThumbnail;

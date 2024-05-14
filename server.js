@@ -7,7 +7,7 @@ import sgMail from "@sendgrid/mail";
 import { generateHTML, generatePlainText } from "./emailContent.js";
 import { downloadFile, deleteFile } from "./download.js";
 import uploadFileToYouTube from "./puppeteer.js";
-// import zoomBody from "./zoomWebhookPayloadExample.js";
+import zoomBody from "./zoomWebhookPayloadExample.js";
 
 //express server and sendgrid API setup
 export const server = express();
@@ -45,8 +45,12 @@ server.post("/zoomWebhookHU", async (req, res) => {
 });
 
 // manually trigger a download on server start for testing reasons
+
 // const filePath = await downloadFile(zoomBody);
 // console.log(filePath);
+// // OR
+// let filePath = `/private/var/folders/qk/72jc3tk90_q17tmgvd1qr3240000gn/T/9ec07094ef2dbc4f291a734d6a4ca4b7.mp4`;
+
 // await uploadFileToYouTube(filePath);
 // deleteFile(filePath);
 
