@@ -79,7 +79,9 @@ const generateThumbnail = async (prompt, dayCode, localRun = false) => {
 		}
 
 		//compress the image for youtube
-		const compressedDest = localRun ? "~/Downloads" : temporaryDirectory();
+		const compressedDest = localRun
+			? "/Users/maxmatthews/Downloads"
+			: temporaryDirectory();
 		const files = await imagemin([tempFilePath], {
 			destination: compressedDest,
 			plugins: [
