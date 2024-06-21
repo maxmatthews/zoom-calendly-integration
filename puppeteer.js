@@ -129,9 +129,9 @@ const uploadFileToYouTube = async (filePath) => {
 	//generate thumbnail and upload it to YouTube
 	const thumbnailPath = await generateThumbnail(topic, dayCode);
 	if (thumbnailPath) {
-		await page.waitForXPath(`//span[contains(text(), 'Upload thumbnail')]`);
+		await page.waitForXPath(`//span[contains(text(), 'Upload file')]`);
 		const selectThumbnailFile = await page.$x(
-			`//span[contains(text(), 'Upload thumbnail')]`,
+			`//span[contains(text(), 'Upload file')]`,
 		);
 		const [fileThumbnailChooser] = await Promise.all([
 			page.waitForFileChooser(),

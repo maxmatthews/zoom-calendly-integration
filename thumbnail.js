@@ -101,6 +101,6 @@ const generateThumbnail = async (prompt, dayCode, localRun = false) => {
 	}
 };
 
-// await generateThumbnail("Intro to Javascript", "W5D1", true);
+// await generateThumbnail("Weather Locations", "W7D4", true);
 // process.exit();
 export default generateThumbnail;
