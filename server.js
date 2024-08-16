@@ -2,11 +2,13 @@ import express from "express";
 import bodyParser from "body-parser";
 import * as crypto from "crypto";
 import secrets from "./secrets.js";
-import { subMinutes, addMinutes } from "date-fns";
+import {subMinutes, addMinutes} from "date-fns";
 import sgMail from "@sendgrid/mail";
-import { generateHTML, generatePlainText } from "./emailContent.js";
-import { downloadFile, deleteFile } from "./download.js";
+import {generateHTML, generatePlainText} from "./emailContent.js";
+import {downloadFile, deleteFile} from "./download.js";
 import uploadFileToYouTube from "./puppeteer.js";
+import cancellationRouter from "./calendlyCancellation.js";
+
 import zoomBody from "./zoomWebhookPayloadExample.js";
 
 //express server and sendgrid API setup
@@ -20,11 +22,11 @@ server.post("/zoomWebhookHU", async (req, res) => {
 	} else {
 		if (zoomWebhookValidation(req, secrets.zoomSecret2)) {
 			console.log("auth failure");
-			return res.status(401).send({ success: false, message: "auth failure" });
+			return res.status(401).send({success: false, message: "auth failure"});
 		}
 
 		//send something back to Zoom while we download the file so it isn't marked as a failure
-		res.send({ webhook: true });
+		res.send({webhook: true});
 
 		if (
 			(req.body.payload.object.topic === "CiC C6 Classroom" &&
@@ -60,7 +62,7 @@ server.post("/zoomWebhook", async (req, res) => {
 	} else {
 		if (zoomWebhookValidation(req, secrets.zoomSecret)) {
 			console.log("auth failure");
-			return res.status(401).send({ success: false, message: "auth failure" });
+			return res.status(401).send({success: false, message: "auth failure"});
 		}
 
 		if (req.body.payload.object.duration < 8) {
@@ -78,7 +80,7 @@ server.post("/zoomWebhook", async (req, res) => {
 		if (!matchingEvent) {
 			return await sendFailureMessage(req);
 		} else {
-			res.send({ success: true });
+			res.send({success: true});
 			const inviteeEmails = await getInvitees(matchingEvent);
 
 			return await sendEmails(inviteeEmails, req);
@@ -193,8 +195,10 @@ const sendEmails = async (inviteeEmails, req) => {
 	}
 };
 
+server.use("/", cancellationRouter);
+
 server.get("/", (req, res) => {
-	res.send({ server: "running" });
+	res.send({server: "running"});
 });
 
 server.listen(3000, "0.0.0.0", () => {
