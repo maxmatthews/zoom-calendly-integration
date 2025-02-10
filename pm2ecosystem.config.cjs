@@ -1,7 +1,7 @@
 module.exports = {
 	apps: [
 		//Xvfb is required to get headless mode to be set to false on Linux
-		{ name: "Xvfb", script: "Xvfb", args: ":99" },
+		{name: "Xvfb", script: "Xvfb", args: ":99"},
 		{
 			name: "zoom-youtube-calendly",
 			script: "./server.js",
