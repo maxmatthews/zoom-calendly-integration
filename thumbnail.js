@@ -7,7 +7,7 @@ import {Readable} from "stream";
 import {deleteFile} from "./download.js";
 import imagemin from "imagemin";
 import imageminPngquant from "imagemin-pngquant";
-import auth from "./googleCredentials.json" assert {type: "json"};
+import auth from "./googleCredentials.json" with {type: "json"};
 import {google} from "googleapis";
 
 const SCOPES = "https://www.googleapis.com/auth/drive";
@@ -101,6 +101,6 @@ const generateThumbnail = async (prompt, dayCode, localRun = false) => {
 	}
 };
 
-// await generateThumbnail("React Weather P2", "W14D2", true);
+// await generateThumbnail("Blog Project Review & Career Questions", "W19D1", true);
 // process.exit();
 export default generateThumbnail;

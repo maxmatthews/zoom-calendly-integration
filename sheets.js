@@ -1,6 +1,6 @@
-import { google } from "googleapis";
+import {google} from "googleapis";
 
-import auth from "./googleCredentials.json" assert { type: "json" };
+import auth from "./googleCredentials.json" with {type: "json"};
 
 const updateSpreadsheet = async (youtubeURL) => {
 	const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
@@ -84,12 +84,12 @@ const updateSpreadsheet = async (youtubeURL) => {
 					spreadsheetId,
 					range: cellRange,
 					valueInputOption: "USER_ENTERED",
-					resource: { values: [[`=HYPERLINK("${youtubeURL}", "Video")`]] },
+					resource: {values: [[`=HYPERLINK("${youtubeURL}", "Video")`]]},
 				});
 			}
 		}
 	}
-	return { dayCode, topic };
+	return {dayCode, topic};
 };
 
 export default updateSpreadsheet;

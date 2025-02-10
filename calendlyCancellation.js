@@ -1,6 +1,6 @@
 import cryto from "crypto";
 import {google} from "googleapis";
-import auth from "./googleCalendarCredentials.json" assert {type: "json"};
+import auth from "./googleCalendarCredentials.json" with {type: "json"};
 import express from "express";
 import secrets from "./secrets.js";
 import crypto from "crypto";
