@@ -5,7 +5,8 @@ module.exports = {
 		{
 			name: "zoom-youtube-calendly",
 			script: "./server.js",
-
+			interpreter: "/home/odroid/.nvm/versions/node/v22.13.1/bin/node",
+			
 			instances: 1,
 			autorestart: true,
 			watch: false,
